@@ -31,7 +31,7 @@ urlpatterns = [
         name="schema-swagger-ui",
     ),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
-    path('lessons/', views.LessonListView.as_view(), name='lesson_list'),
+    path('lessons/', views.LessonListApiView.as_view(), name='lesson_list'),
 ]
 
 
