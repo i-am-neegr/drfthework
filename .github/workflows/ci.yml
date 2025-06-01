@@ -1,10 +1,8 @@
-
 name: Django CI
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
 
@@ -15,10 +13,13 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 202054
           POSTGRES_DB: homework
-
-          DJANGO_SECRET_KEY : django-insecure-*@i#y2gl3--=i$z$hb1%t-nm=jx@6tr7(55uniahl8#c!&b6vt
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
       redis:
         image: redis:7
         ports:
@@ -30,20 +31,16 @@ jobs:
           --health-retries=5
 
     env:
-      ENGINE: django.db.backends.postgresql_psycopg2
-      POSTGRES_DB : homework
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 202054
+      DATABASE_URL: postgresql://postgres:202054@localhost:5432/homework
       DJANGO_SECRET_KEY: django-insecure-*@i#y2gl3--=i$z$hb1%t-nm=jx@6tr7(55uniahl8#c!&b6vt
-
-
+      REDIS_URL: redis://localhost:6379/0
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -51,6 +48,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Run migrations
+        run: python manage.py migrate
 
       - name: Run tests
         run: python manage.py test
@@ -63,19 +63,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Login to Docker Hub
-        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build and push Docker image
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:${{ github.sha }} .
           docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:${{ github.sha }} ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:latest
-
-      - name: Push Docker image to Docker Hub
-        run: |
-          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:${{ github.sha }}
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:latest
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -89,9 +89,14 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Verify server structure
+      - name: Prepare deployment directory
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "ls -la ~/lera"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            mkdir -p ~/lera
+            cd ~/lera
+            touch docker-compose.yml .env
+            chmod 600 .env
+          EOF
 
       - name: Prepare deployment files
         run: |
@@ -108,14 +113,13 @@ jobs:
 
       - name: Deploy application
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ~/lera
-            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
-              docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-
+            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
             docker compose down --remove-orphans
             docker compose pull
             docker compose up -d --build
-
             docker compose ps
+            # Очистка старых образов (опционально)
+            docker image prune -f
           EOF
