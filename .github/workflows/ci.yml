@@ -68,14 +68,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/lera:${{ github.sha }} .
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/lera:${{ github.sha }} ${{ secrets.DOCKER_HUB_USERNAME }}/lera:latest
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:${{ github.sha }} .
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:${{ github.sha }} ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:latest
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/lera:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/lera:latest
-
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/drf_thework-app:latest
   deploy:
     needs: build
     runs-on: ubuntu-latest
