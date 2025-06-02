@@ -86,7 +86,7 @@ jobs:
 
       - name: Verify server structure
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "ls -la /var"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "ls -la ~/drf_thework-app"
 
       - name: Prepare deployment files
         run: |
@@ -99,12 +99,12 @@ jobs:
             ./docker-compose.yml \
             ./.env \
             ./nginx \
-            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/lera/
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/drf_thework-app/
 
       - name: Deploy application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
-            cd ~/lera
+            cd ~/drf_thework-app
             echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
               docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
           
