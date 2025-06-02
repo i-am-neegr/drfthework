@@ -79,38 +79,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-
-      - name: Verify server structure
+      - name: Simulate adding SSH key
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "ls -la ~/drf_thework-app"
+          echo "SSH key would be added here (simulated)"
+          echo "SSH_PRIVATE_KEY is set: ${{ secrets.SSH_PRIVATE_KEY != '' }}"
+
+      - name: Simulate SSH setup
+        run: |
+          echo "SSH setup simulated for user ${{ secrets.SSH_USER }} and server ${{ secrets.SERVER_IP }}"
+
+      - name: Simulate verifying server structure
+        run: |
+          echo "Simulating server structure check: ls -la ~/drf_thework-app on ${{ secrets.SERVER_IP }}"
 
       - name: Prepare deployment files
         run: |
+          echo "Preparing .env file (simulated)"
           echo "${{ secrets.ENV_FILE }}" > .env
           chmod 600 .env
+          ls -la .env
 
-      - name: Sync necessary files
+      - name: Simulate syncing necessary files
         run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" \
-            ./docker-compose.yml \
-            ./.env \
-            ./nginx \
-            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/drf_thework-app/
+          echo "Simulating rsync of docker-compose.yml, .env, and nginx to ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/drf_thework-app/"
 
-      - name: Deploy application
+      - name: Simulate deploying application
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
-            cd ~/drf_thework-app
-            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
-              docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-
-            docker compose down --remove-orphans
-            docker compose pull
-            docker compose up -d --build
-
-            docker compose ps
-          EOF
+          echo "Simulating deployment steps:"
+          echo "1. Logging into Docker Hub as ${{ secrets.DOCKER_HUB_USERNAME }}"
+          echo "2. Running docker compose down --remove-orphans"
+          echo "3. Running docker compose pull"
+          echo "4. Running docker compose up -d --build"
+          echo "5. Checking services with docker compose ps"
+          echo "Deployment simulated successfully for ~/drf_thework-app"
