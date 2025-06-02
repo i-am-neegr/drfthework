@@ -13,7 +13,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 202054
+          POSTGRES_PASSWORD: 080201
           POSTGRES_DB: homework
 
           DJANGO_SECRET_KEY: django-insecure-*@i#y2gl3--=i$z$hb1%t-nm=jx@6tr7(55uniahl8#c!&b6vt
@@ -33,7 +33,7 @@ jobs:
       ENGINE: django.db.backends.postgresql_psycopg2
       POSTGRES_DB: homework
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 202054
+      POSTGRES_PASSWORD: 080201
       DJANGO_SECRET_KEY: django-insecure-*@i#y2gl3--=i$z$hb1%t-nm=jx@6tr7(55uniahl8#c!&b6vt
 
 
@@ -86,7 +86,7 @@ jobs:
 
       - name: Verify server structure
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "ls -la ~/lera"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "ls -la ~/drf_thework-app"
 
       - name: Prepare deployment files
         run: |
@@ -99,12 +99,12 @@ jobs:
             ./docker-compose.yml \
             ./.env \
             ./nginx \
-            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/lera/
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/drf_thework-app/
 
       - name: Deploy application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
-            cd ~/lera
+            cd ~/drf_thework-app
             echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | \
               docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
           
