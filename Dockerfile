@@ -4,8 +4,8 @@ FROM python:3.12-slim
 
 # Устанавливаем переменные окружения
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Устанавливаем зависимости системы
 RUN apt-get update && apt-get install -y \
