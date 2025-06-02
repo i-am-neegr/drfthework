@@ -79,33 +79,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Simulate adding SSH key
+      - name:  adding SSH key
         run: |
-          echo "SSH key would be added here (simulated)"
+          echo "SSH key would be added here ()"
           echo "SSH_PRIVATE_KEY is set: ${{ secrets.SSH_PRIVATE_KEY != '' }}"
 
-      - name: Simulate SSH setup
+      - name:  SSH setup
         run: |
-          echo "SSH setup simulated for user ${{ secrets.SSH_USER }} and server ${{ secrets.SERVER_IP }}"
+          echo "SSH setup  for user ${{ secrets.SSH_USER }} and server ${{ secrets.SERVER_IP }}"
 
-      - name: Simulate verifying server structure
+      - name:  verifying server structure
         run: |
-          echo "Simulating server structure check: ls -la ~/drf_thework-app on ${{ secrets.SERVER_IP }}"
+          echo " server structure check: ls -la ~/drf_thework-app on ${{ secrets.SERVER_IP }}"
 
       - name: Prepare deployment files
         run: |
-          echo "Preparing .env file (simulated)"
+          echo "Preparing .env file ()"
           echo "${{ secrets.ENV_FILE }}" > .env
           chmod 600 .env
           ls -la .env
 
-      - name: Simulate syncing necessary files
+      - name:  syncing necessary files
         run: |
-          echo "Simulating rsync of docker-compose.yml, .env, and nginx to ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/drf_thework-app/"
+          echo " rsync of docker-compose.yml, .env, and nginx to ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/drf_thework-app/"
 
-      - name: Simulate deploying application
+      - name:  deploying application
         run: |
-          echo "Simulating deployment steps:"
+          echo " deployment steps:"
           echo "1. Logging into Docker Hub as ${{ secrets.DOCKER_HUB_USERNAME }}"
           echo "2. Running docker compose down --remove-orphans"
           echo "3. Running docker compose pull"
